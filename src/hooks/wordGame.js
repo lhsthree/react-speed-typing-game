@@ -1,51 +1,52 @@
-import React, {useState, useEffect, useRef} from "react"
+import {useState, useEffect, useRef} from "react"
 
-function useWordGame(startingTime = 10) {
-    const [timeRemaining, setTimeRemaining] = useState(startingTime)
-    const [text, setText] = useState("")
-    const [wordCount, setWordCount] = useState(0)
-    const [isTimeRunning, setIsTimeRunning] = useState(false)
-    const textBoxRef = useRef(null)
+function useWordGame(){
+    const STARTING_TIME = 5
 
-    function startClock() {
-        setIsTimeRunning(true)
-        setWordCount(0)
-        setText("")
-        setTimeRemaining(startingTime)
-        textBoxRef.current.disabled = false
-        textBoxRef.current.focus()
-    }
+  const [text, setText] = useState("")
+  const [timeRemaining, setTimeRemaining] = useState(STARTING_TIME)
+  const [isTimeRunning, setIsTimeRunning] = useState(false)
+  const [wordCount, setWordCount] = useState(0)
+  const inputRef = useRef(null)
 
-    function handleChange(e) {
-        const {value} = e.target
-        setText(value)
-    }
-    
-    function calculateWordCount(text) {
-        const wordsArr = text.trim().split(" ")
-        return wordsArr.filter(word => word !== "").length
-    }
-    
-    function endGame() {
-        setIsTimeRunning(false)
-        const numWords = calculateWordCount(text)
-        setWordCount(numWords)
-        setTimeRemaining(0)
-    }
-    
-    function decrementTime() {
+  function handleChange(e){
+    const {value} = e.target
+    setText(value)
+  }
+
+  function calculateWordCount(text){
+    const wordsArr = text.trim().split(' ')
+    const filteredWords = wordsArr.filter(word => word !== "")
+    return filteredWords.length
+  }
+
+  function startGame(){
+    setIsTimeRunning(true)
+    setTimeRemaining(STARTING_TIME)
+    setText("")
+    inputRef.current.disabled = false
+    inputRef.current.focus()
+  }
+
+  function endGame() {
+      setIsTimeRunning(false)
+      const numWords = calculateWordCount(text)
+      setWordCount(numWords)
+  }
+
+  useEffect(() => {
+    if (isTimeRunning && timeRemaining > 0){
+      setTimeout(() => {
         setTimeRemaining(time => time - 1)
+      }, 1000)
+    }  else if (timeRemaining === 0) {
+      endGame()
     }
-    
-    useEffect(() => {
-        if(isTimeRunning && timeRemaining !== 0) {
-            setTimeout(decrementTime, 1000)
-        } else if (timeRemaining === 0) {
-            endGame()
-        }
-    }, [isTimeRunning, timeRemaining])
-    
-    return {handleChange, startClock, textBoxRef, timeRemaining, wordCount, text, isTimeRunning}
+  }, [timeRemaining, isTimeRunning])
+
+  return {inputRef, handleChange, text, isTimeRunning, timeRemaining, startGame, endGame, wordCount}
 }
+
+
 
 export default useWordGame
