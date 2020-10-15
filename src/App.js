@@ -10,7 +10,7 @@ function App() {
         startGame, 
         endGame, 
         wordCount
-      } = useWordGame()
+      } = useWordGame(15)
   
 
     return (
